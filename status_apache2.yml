@@ -1,0 +1,13 @@
+---
+- name: Check Apache Status
+  hosts: my_servers
+  become: yes
+  tasks:
+    - name: Check if Apache is running (using systemctl)
+      ansible.builtin.shell: "systemctl status apache2 || systemctl status httpd"
+      register: apache_status
+      ignore_errors: yes
+
+    - name: Display Apache status
+      ansible.builtin.debug:
+        msg: "{{ apache_status.stdout }}"
