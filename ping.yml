@@ -1,0 +1,3 @@
+- hosts: my_servers
+  roles:
+  - ping
