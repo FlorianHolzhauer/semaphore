@@ -1,20 +1,48 @@
 ---
-- name: Update Linux and Apache2
-  hosts: my_servers
+- name: Update and Upgrade Server, Install & Update Apache2
+  hosts: all
   become: true
-
   tasks:
-    - name: Update all system packages
+
+    # Ensure dpkg is in a consistent state
+    - name: Ensure dpkg is configured properly
+      command: dpkg --configure -a
+      become: true
+      ignore_errors: true
+
+    # Update apt package cache
+    - name: Update apt cache
       apt:
         update_cache: yes
-        upgrade: dist
+        cache_valid_time: 3600  # Cache valid for 1 hour
 
-    - name: Ensure Apache2 is installed
+    # Upgrade all packages
+    - name: Upgrade all packages
+      apt:
+        upgrade: dist
+        autoremove: yes
+
+    # Ensure Apache2 is installed
+    - name: Install Apache2
       apt:
         name: apache2
         state: present
 
-    - name: Restart Apache2 to apply updates (if needed)
+    # Ensure Apache2 is updated to the latest version
+    - name: Upgrade Apache2 to the latest version
+      apt:
+        name: apache2
+        state: latest
+
+    # Restart Apache2 if needed
+    - name: Restart Apache2
       service:
         name: apache2
         state: restarted
+
+    # Verify Apache2 is running
+    - name: Ensure Apache2 service is running
+      service:
+        name: apache2
+        state: started
+        enabled: yes
